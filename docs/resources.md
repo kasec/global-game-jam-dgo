@@ -27,3 +27,9 @@ Building with this one as well https://lospec.com/palette-list/citrink
 - Make your first game with phaser
   https://docs.phaser.io/phaser/getting-started/making-your-first-phaser-game
 
+## Pixel Art Scaler
+
+Increase it 600% to fit our canvas size
+
+- https://lospec.com/pixel-art-scaler/
+
