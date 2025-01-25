@@ -1,7 +1,6 @@
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
-
-const PLAYER_VELOCITY = 80;
+const PLAYER_VELOCITY = 70 * 6;
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
@@ -42,7 +41,7 @@ export class Game extends Scene {
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor(0xff8e80);
 
-    this.player = this.physics.add.sprite(70, 45, "player");
+    this.player = this.physics.add.sprite(80 * 6, 45 * 6, "player");
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, bedroom_objects);
 
@@ -56,7 +55,7 @@ export class Game extends Scene {
       callbackScope: this,
       callback: () => {
         if (this.playerMoving) {
-          this.sound.play("step", { volume: 0.25 });
+          this.sound.play("step", { volume: 0.5 });
         }
       },
     });
@@ -67,7 +66,7 @@ export class Game extends Scene {
         start: 1,
         end: 4,
       }),
-      frameRate: 10,
+      frameRate: 7,
       repeat: -1,
     });
 
@@ -77,7 +76,7 @@ export class Game extends Scene {
         start: 6,
         end: 9,
       }),
-      frameRate: 10,
+      frameRate: 7,
       repeat: -1,
     });
 
@@ -87,7 +86,7 @@ export class Game extends Scene {
         start: 11,
         end: 14,
       }),
-      frameRate: 10,
+      frameRate: 7,
       repeat: -1,
     });
 
@@ -97,20 +96,20 @@ export class Game extends Scene {
         start: 16,
         end: 19,
       }),
-      frameRate: 10,
+      frameRate: 7,
       repeat: -1,
     });
 
     this.anims.create({
       key: "idle-down",
       frames: [{ key: "player", frame: 0 }],
-      frameRate: 20,
+      frameRate: 10,
     });
 
     this.anims.create({
       key: "idle-right",
       frames: [{ key: "player", frame: 5 }],
-      frameRate: 20,
+      frameRate: 10,
     });
 
     this.anims.create({
@@ -131,38 +130,43 @@ export class Game extends Scene {
   update() {
     this.cursors = this.input.keyboard?.createCursorKeys();
 
+    this.player.body.setVelocity(0);
+
     if (this.cursors?.left.isDown) {
-      this.lastKeyDown = "left";
-      this.player.setVelocityX(-PLAYER_VELOCITY);
-
-      this.player.anims.play("left", true);
+      this.player.body.setVelocityX(-PLAYER_VELOCITY);
     } else if (this.cursors?.right.isDown) {
-      this.lastKeyDown = "right";
-      this.player.setVelocityX(PLAYER_VELOCITY);
-
-      this.player.anims.play("right", true);
-    } else if (this.cursors?.up.isDown) {
-      this.lastKeyDown = "up";
-      this.player.setVelocityY(-PLAYER_VELOCITY);
-
-      this.player.anims.play("up", true);
-    } else if (this.cursors?.down.isDown) {
-      this.lastKeyDown = "down";
-      this.player.setVelocityY(PLAYER_VELOCITY);
-
-      this.player.anims.play("down", true);
-    } else {
-      this.player.setVelocityY(0);
-      this.player.setVelocityX(0);
-      this.player.anims.play(`idle-${this.lastKeyDown}`, true);
+      this.player.body.setVelocityX(PLAYER_VELOCITY);
     }
 
-    this.playerMoving =
-      this.cursors?.left.isDown ||
-      this.cursors?.right.isDown ||
-      this.cursors?.up.isDown ||
-      this.cursors?.down.isDown ||
-      false;
+    if (this.cursors?.up.isDown) {
+      this.player.body.setVelocityY(-PLAYER_VELOCITY);
+    } else if (this.cursors?.down.isDown) {
+      this.player.body.setVelocityY(PLAYER_VELOCITY);
+    }
+
+    this.player.body.velocity.normalize().scale(PLAYER_VELOCITY);
+
+    if (this.cursors?.left.isDown) {
+      this.lastKeyDown = "left";
+      this.player.anims.play("left", true);
+      this.playerMoving = true;
+    } else if (this.cursors?.right.isDown) {
+      this.lastKeyDown = "right";
+      this.player.anims.play("right", true);
+      this.playerMoving = true;
+    } else if (this.cursors?.up.isDown) {
+      this.lastKeyDown = "up";
+      this.player.anims.play("up", true);
+      this.playerMoving = true;
+    } else if (this.cursors?.down.isDown) {
+      this.lastKeyDown = "down";
+      this.player.anims.play("down", true);
+      this.playerMoving = true;
+    } else {
+      this.player.anims.stop();
+      this.player.anims.play(`idle-${this.lastKeyDown}`, true);
+      this.playerMoving = false;
+    }
   }
 
   changeScene() {

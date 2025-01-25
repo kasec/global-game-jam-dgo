@@ -7,12 +7,8 @@ import { Preloader } from "./scenes/Preloader";
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
-  width: 160,
-  height: 90,
-  scale: {
-    mode: Phaser.Scale.FIT,
-    zoom: Phaser.Scale.MAX_ZOOM,
-  },
+  width: 960,
+  height: 540,
   physics: {
     default: "arcade",
     arcade: {
@@ -22,6 +18,8 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     keyboard: true,
   },
+  pixelArt: true,
+  roundPixels: true,
   parent: "game-container",
   backgroundColor: "#201533",
   scene: [Boot, Preloader, MainGame],
