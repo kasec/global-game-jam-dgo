@@ -25,6 +25,7 @@ export class Preloader extends Scene {
       frameWidth: 16 * 6,
       frameHeight: 16 * 6,
     });
+    this.load.image('open-door', 'open-door.png');
     this.load.audio("step", "step.wav");
   }
 

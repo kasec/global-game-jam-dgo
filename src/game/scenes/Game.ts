@@ -2,6 +2,7 @@ import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 const PLAYER_VELOCITY = 70 * 6;
 
+let bedroom_objects;
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -15,15 +16,34 @@ export class Game extends Scene {
   constructor() {
     super("Game");
   }
-
+  preload() {
+    this.load.image('bed', 'assets/bed-sprite.png');
+    this.load.image('bedroom-window', 'assets/bedroom-window.png');
+    this.load.image('bedroom-table', 'assets/bed-table.png');
+    this.load.image('bedroom-carpet', 'assets/bed-carpet.png');
+    this.load.image('bedroom-sofa', 'assets/bedroom-sofa.png');
+    this.load.image('bedroom-tv', 'assets/bedroom-tv.png');
+  }
   create() {
     this.lastKeyDown = "down";
+    
+    bedroom_objects = this.physics.add.staticGroup()
+    bedroom_objects.create(15, 10, 'bed').setScale(3).refreshBody();
+    // TO-DO need to remove extra spaces from sprites, so the player freely move 
+    // bedroom_objects.create(50, -16, 'bedroom-window').setScale(2).refreshBody();
+    // bedroom_objects.create(140, -16, 'bedroom-window').setScale(2).refreshBody();
+    bedroom_objects.create(0, 50, 'bedroom-table').setScale(2).refreshBody();
+    bedroom_objects.create(155, 85, 'open-door').refreshBody();
+    bedroom_objects.create(100, 38, 'bedroom-sofa').setScale(2).refreshBody();
+    bedroom_objects.create(100, 58, 'bedroom-carpet').setScale(2).refreshBody();
+    bedroom_objects.create(100, 70, 'bedroom-tv').setScale(2).refreshBody();
+    
     this.camera = this.cameras.main;
-    this.camera.setBackgroundColor(0x252446);
+    this.camera.setBackgroundColor(0xff8e80);
 
     this.player = this.physics.add.sprite(80 * 6, 45 * 6, "player");
     this.player.setCollideWorldBounds(true);
-
+    this.physics.add.collider(this.player, bedroom_objects);
     this.stepEvent = this.time.addEvent({
       delay: 220,
       repeat: -1,
