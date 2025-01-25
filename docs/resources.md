@@ -2,14 +2,17 @@
 
 https://lospec.com/palette-list
 
-We selected this one https://lospec.com/palette-list/ys-postapocalyptic-sunset
+We selected this one https://lospec.com/palette-list/lava-gb
 
 It has the following colors
 
-- Purple #1d0f44
-- Orange  #f44e38
+-   Deep blue #051f39
+-   Purple #4a2480
+-   Pink #c53a9d
+-   Orange #ff8e80
 
 ## Tutorials
 
-- Make your first game with phaser
-https://docs.phaser.io/phaser/getting-started/making-your-first-phaser-game
+-   Make your first game with phaser
+    https://docs.phaser.io/phaser/getting-started/making-your-first-phaser-game
+

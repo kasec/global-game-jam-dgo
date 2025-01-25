@@ -42,9 +42,23 @@ export class Game extends Scene {
                 this.player.anims.play("turn");
             }
 
-            if (this.cursors.up.isDown && this.player.body.touching.down) {
-                this.player.setVelocityY(-330);
+            if (this.cursors.up.isDown) {
+                this.player.setVelocityY(-160);
+
+                this.player.anims.play("down", true);
+            } else if (this.cursors.down.isDown) {
+                this.player.setVelocityY(160);
+
+                this.player.anims.play("right", true);
+            } else {
+                this.player.setVelocityY(0);
+
+                this.player.anims.play("turn");
             }
+
+            // if (this.cursors.up.isDown && this.player.body.touching.down) {
+            //     this.player.setVelocityY(-330);
+            // }
         }
     }
 
