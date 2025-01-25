@@ -1,36 +1,55 @@
-import { EventBus } from '../EventBus';
-import { Scene } from 'phaser';
+import { EventBus } from "../EventBus";
+import { Scene } from "phaser";
 
-export class Game extends Scene
-{
+export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
+    player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameText: Phaser.GameObjects.Text;
+    platforms: Phaser.Physics.Arcade.StaticGroup;
+    cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
-    constructor ()
-    {
-        super('Game');
+    constructor() {
+        super("Game");
     }
 
-    create ()
-    {
+    create() {
         this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x00ff00);
+        this.camera.setBackgroundColor(0xf44e38);
 
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
+        this.player = this.physics.add.sprite(80, 45, "pc");
+        this.player.setCollideWorldBounds(true);
 
-        this.gameText = this.add.text(512, 384, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100);
-
-        EventBus.emit('current-scene-ready', this);
+        EventBus.emit("current-scene-ready", this);
     }
 
-    changeScene ()
-    {
-        this.scene.start('GameOver');
+    update() {
+        this.cursors = this.input.keyboard?.createCursorKeys();
+
+        console.log("this.cursors ", this.cursors);
+
+        if (this.cursors) {
+            if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-160);
+
+                this.player.anims.play("left", true);
+            } else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(160);
+
+                this.player.anims.play("right", true);
+            } else {
+                this.player.setVelocityX(0);
+
+                this.player.anims.play("turn");
+            }
+
+            if (this.cursors.up.isDown && this.player.body.touching.down) {
+                this.player.setVelocityY(-330);
+            }
+        }
+    }
+
+    changeScene() {
+        this.scene.start("GameOver");
     }
 }
+

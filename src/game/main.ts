@@ -9,8 +9,21 @@ import { Preloader } from './scenes/Preloader';
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: 1024,
-    height: 768,
+    width: 160,
+    height: 90,
+    scale: {
+        zoom: 4
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { x: 0, y: 160 },
+            debug: false
+        }
+    },
+    input: {
+        keyboard: true
+    },
     parent: 'game-container',
     backgroundColor: '#028af8',
     scene: [
