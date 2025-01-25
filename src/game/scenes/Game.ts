@@ -3,7 +3,6 @@ import { Scene } from "phaser";
 
 const PLAYER_VELOCITY = 80;
 
-let bedroom_objects;
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -27,24 +26,30 @@ export class Game extends Scene {
   }
   create() {
     this.lastKeyDown = "down";
-    
-    bedroom_objects = this.physics.add.staticGroup()
-    bedroom_objects.create(15, 10, 'bed').setScale(3).refreshBody();
+
+    const bed_object = this.physics.add.staticImage(15, 10, 'bed').setScale(3).refreshBody();
+    const bedroom_table = this.physics.add.staticImage(0, 50, 'bedroom-table').setScale(2).refreshBody();
     // TO-DO need to remove extra spaces from sprites, so the player freely move 
-    // bedroom_objects.create(50, -16, 'bedroom-window').setScale(2).refreshBody();
-    // bedroom_objects.create(140, -16, 'bedroom-window').setScale(2).refreshBody();
-    bedroom_objects.create(0, 50, 'bedroom-table').setScale(2).refreshBody();
-    bedroom_objects.create(155, 85, 'open-door').refreshBody();
-    bedroom_objects.create(100, 38, 'bedroom-sofa').setScale(2).refreshBody();
-    bedroom_objects.create(100, 58, 'bedroom-carpet').setScale(2).refreshBody();
-    bedroom_objects.create(100, 70, 'bedroom-tv').setScale(2).refreshBody();
-    
+    const bedroom_window1 = this.physics.add.staticImage(50, 2, 'bedroom-window').setScale(2).refreshBody();
+    const bedroom_window2 = this.physics.add.staticImage(140, 2, 'bedroom-window').setScale(2).refreshBody();
+    const bedroom_door = this.physics.add.staticImage(155, 85, 'open-door').refreshBody();
+    const bedroom_sofa = this.physics.add.staticImage(100, 30, 'bedroom-sofa').setScale(2).refreshBody();
+    const bedroom_carpet = this.physics.add.staticImage(100, 58, 'bedroom-carpet').setScale(2).refreshBody();
+    const bedroom_tv = this.physics.add.staticImage(100, 85, 'bedroom-tv').setScale(2).refreshBody();
+
+    const bedroom_objects = this.physics.add.staticGroup([bed_object, bedroom_sofa, bedroom_door, bedroom_tv, bedroom_window1, bedroom_window2])
+
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor(0xff8e80);
 
-    this.player = this.physics.add.sprite(80, 45, "player");
+    this.player = this.physics.add.sprite(70, 45, "player");
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, bedroom_objects);
+
+    this.physics.add.overlap(this.player, bedroom_carpet, movingThroughCarpet, null, this);
+    this.physics.add.collider(this.player, bedroom_table, () => console.log('Colliding 2 objects'), null, this);
+
+
     this.stepEvent = this.time.addEvent({
       delay: 220,
       repeat: -1,
@@ -165,3 +170,12 @@ export class Game extends Scene {
   }
 }
 
+function movingThroughCarpet(player, carpet) {
+  this.add.text(5, 5, 'Collision shapes, parsed from Tiled', {
+    fontSize: '5px',
+    padding: { x: 20, y: 10 },
+    backgroundColor: '#ffffff',
+    fill: '#000000',
+    wordWrap: { width: 100, height: 100 }
+  });
+}
