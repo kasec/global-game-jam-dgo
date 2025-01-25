@@ -11,9 +11,11 @@ export class Game extends Scene {
   lastKeyDown: string;
   playerMoving: boolean;
   stepEvent: Phaser.Time.TimerEvent;
+  message: null | Phaser.GameObjects.Text
 
   constructor() {
     super("Game");
+    this.message = null
   }
   preload() {
     this.load.image('bed', 'assets/bed-sprite.png');
@@ -23,18 +25,48 @@ export class Game extends Scene {
     this.load.image('bedroom-sofa', 'assets/bedroom-sofa.png');
     this.load.image('bedroom-tv', 'assets/bedroom-tv.png');
   }
+  // message is different based on object type
+  showMessage(bed_object: 'table' | 'window1' | 'window2' | 'sofa' | 'carpet' | 'tv') {
+    console.log('trying to display message', { bed_object });
+    if (bed_object === 'carpet') {
+      this.message = this.add.text(5, 5, 'Collision carpet', {
+        fontSize: '24px',
+        padding: { x: 20, y: 10 },
+        backgroundColor: '#ffffff',
+        fill: '#000000',
+      });
+    } else {
+      this.message = this.add.text(5, 5, `Collision with ${bed_object}`, {
+        fontSize: '24px',
+        padding: { x: 20, y: 10 },
+        backgroundColor: '#ffffff',
+        fill: '#000000',
+      });
+    }
+  }
+  destroyMessage() {
+    console.log('trying to destroy message', { message: this.message });
+
+    if (this.message === null) return
+
+    // TO-DO I don't know how to remove the text yet
+    this.message.disableInteractive()
+    this.message.destroy(true);
+
+    this.message = null;
+  }
   create() {
     this.lastKeyDown = "down";
 
-    const bed_object = this.physics.add.staticImage(15, 10, 'bed').setScale(3).refreshBody();
-    const bedroom_table = this.physics.add.staticImage(0, 50, 'bedroom-table').setScale(2).refreshBody();
+    const bed_object = this.physics.add.staticImage(15 * 6, 10 * 6, 'bed').setScale(10).refreshBody();
+    const bedroom_table = this.physics.add.staticImage(0 * 6, 50 * 6, 'bedroom-table').setScale(10).refreshBody();
     // TO-DO need to remove extra spaces from sprites, so the player freely move 
-    const bedroom_window1 = this.physics.add.staticImage(50, 2, 'bedroom-window').setScale(2).refreshBody();
-    const bedroom_window2 = this.physics.add.staticImage(140, 2, 'bedroom-window').setScale(2).refreshBody();
-    const bedroom_door = this.physics.add.staticImage(155, 85, 'open-door').refreshBody();
-    const bedroom_sofa = this.physics.add.staticImage(100, 30, 'bedroom-sofa').setScale(2).refreshBody();
-    const bedroom_carpet = this.physics.add.staticImage(100, 58, 'bedroom-carpet').setScale(2).refreshBody();
-    const bedroom_tv = this.physics.add.staticImage(100, 85, 'bedroom-tv').setScale(2).refreshBody();
+    const bedroom_window1 = this.physics.add.staticImage(50 * 6, 2 * 6, 'bedroom-window').setScale(10).refreshBody();
+    const bedroom_window2 = this.physics.add.staticImage(140 * 6, 2 * 6, 'bedroom-window').setScale(10).refreshBody();
+    const bedroom_door = this.physics.add.staticImage(155 * 6, 85 * 6, 'open-door').setScale(10).refreshBody();
+    const bedroom_sofa = this.physics.add.staticImage(100 * 6, 30 * 6, 'bedroom-sofa').setScale(10).refreshBody();
+    const bedroom_carpet = this.physics.add.staticImage(100 * 6, 58 * 6, 'bedroom-carpet').setScale(10).refreshBody();
+    const bedroom_tv = this.physics.add.staticImage(100 * 6, 85 * 6, 'bedroom-tv').setScale(10).refreshBody();
 
     const bedroom_objects = this.physics.add.staticGroup([bed_object, bedroom_sofa, bedroom_door, bedroom_tv, bedroom_window1, bedroom_window2])
 
@@ -45,9 +77,12 @@ export class Game extends Scene {
     this.player.setCollideWorldBounds(true);
     this.physics.add.collider(this.player, bedroom_objects);
 
-    this.physics.add.overlap(this.player, bedroom_carpet, movingThroughCarpet, null, this);
+    this.physics.add.overlap(this.player, bedroom_carpet, () => this.showMessage('carpet'), null, this);
     this.physics.add.collider(this.player, bedroom_table, () => console.log('Colliding 2 objects'), null, this);
 
+    this.input.keyboard.on("keydown", () => {
+      this.destroyMessage()
+    });
 
     this.stepEvent = this.time.addEvent({
       delay: 220,
@@ -167,19 +202,11 @@ export class Game extends Scene {
       this.player.anims.play(`idle-${this.lastKeyDown}`, true);
       this.playerMoving = false;
     }
+
+    // this.destroyMessage()
   }
 
   changeScene() {
     this.scene.start("GameOver");
   }
-}
-
-function movingThroughCarpet(player, carpet) {
-  this.add.text(5, 5, 'Collision shapes, parsed from Tiled', {
-    fontSize: '5px',
-    padding: { x: 20, y: 10 },
-    backgroundColor: '#ffffff',
-    fill: '#000000',
-    wordWrap: { width: 100, height: 100 }
-  });
 }
