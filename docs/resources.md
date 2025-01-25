@@ -6,10 +6,21 @@ We selected this one https://lospec.com/palette-list/lava-gb
 
 It has the following colors
 
--   Deep blue #051f39
--   Purple #4a2480
--   Pink #c53a9d
--   Orange #ff8e80
+-   #051f39
+-   #4a2480
+-   #c53a9d
+-   #ff8e80
+
+Building with this one as well https://lospec.com/palette-list/citrink
+
+-   #ffffff
+-   #fcf660
+-   #b2d942
+-   #52c33f
+-   #166e7a
+-   #254d70
+-   #252446
+-   #201533
 
 ## Tutorials
 
