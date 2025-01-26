@@ -41,6 +41,7 @@ export class Preloader extends Scene {
     this.load.image("art", "art.png");
     this.load.image("door", "door.png");
     this.load.image("corridor", "corridor.png");
+    this.load.image("npc", "npc.png");
   }
 
   create() {

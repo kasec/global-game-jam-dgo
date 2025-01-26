@@ -20,7 +20,7 @@ export class Bedroom extends Scene {
     super("Bedroom");
   }
 
-  preload() {}
+  preload() { }
 
   init(data: { back?: boolean }) {
     this.back = data.back || false;
@@ -93,7 +93,7 @@ export class Bedroom extends Scene {
     this.physics.add.overlap(
       this.interArea,
       this.bedroomObjects,
-      (_, bedroomObj: any) => {
+      (_, bedroomObj: unknown) => {
         this.interObject =
           bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
       }

@@ -20,7 +20,7 @@ export class Corridor extends Scene {
     super("Corridor");
   }
 
-  preload() {}
+  preload() { }
 
   init() {
     this.exit = false;
@@ -41,6 +41,14 @@ export class Corridor extends Scene {
       .sprite(66, this.renderer.height - 66, "player")
       .setScale(6);
 
+
+    const npc = this.physics.add
+      .staticSprite(600, 294, "npc")
+      .setScale(6)
+      .setName("pnc")
+      .setData("description", "Hi There! How is it going?")
+      .refreshBody();
+
     this.camera.startFollow(this.player, true);
 
     // Customize the collider size
@@ -56,6 +64,15 @@ export class Corridor extends Scene {
         "interaction-area"
       )
       .setScale(6);
+
+    this.physics.add.overlap(
+      this.interArea,
+      npc,
+      (_, bedroomObj: unknown) => {
+        this.interObject =
+          bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
+      }
+    );
 
     this.stepEvent = this.time.addEvent({
       delay: 250,
