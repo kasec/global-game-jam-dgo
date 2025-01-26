@@ -22,11 +22,19 @@ export class Preloader extends Scene {
     this.load.setPath("assets");
 
     this.load.spritesheet("player", "player.png", {
-      frameWidth: 16 * 6,
-      frameHeight: 16 * 6,
+      frameWidth: 16,
+      frameHeight: 16,
     });
-    this.load.image('open-door', 'open-door.png');
+
+    this.load.image("open-door", "open-door.png");
     this.load.audio("step", "step.wav");
+    this.load.image("bed", "bed-sprite.png");
+    this.load.image("bedroom-window", "bedroom-window.png");
+    this.load.image("bedroom-table", "bed-table.png");
+    this.load.image("bedroom-carpet", "bed-carpet.png");
+    this.load.image("bedroom-sofa", "bedroom-sofa.png");
+    this.load.image("bedroom-tv", "bedroom-tv.png");
+    this.load.image("interaction-area", "interaction-area.png");
   }
 
   create() {

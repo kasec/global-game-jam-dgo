@@ -1,55 +1,86 @@
-import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
-const PLAYER_VELOCITY = 70 * 6;
+
+const SPRITES_SCALE = 6;
+const PLAYER_VELOCITY = 70 * SPRITES_SCALE;
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-  gameText: Phaser.GameObjects.Text;
-  platforms: Phaser.Physics.Arcade.StaticGroup;
+  bedroomObjects: Phaser.Physics.Arcade.StaticGroup;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-  lastKeyDown: string;
-  playerMoving: boolean;
   stepEvent: Phaser.Time.TimerEvent;
+  interObject: Phaser.Types.Physics.Arcade.SpriteWithStaticBody | null;
+  interArea: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+  blinkInter: Phaser.Time.TimerEvent;
+  playerMoving: boolean;
+  lastKeyDown: string = "down";
 
   constructor() {
     super("Game");
   }
-  preload() {
-    this.load.image('bed', 'assets/bed-sprite.png');
-    this.load.image('bedroom-window', 'assets/bedroom-window.png');
-    this.load.image('bedroom-table', 'assets/bed-table.png');
-    this.load.image('bedroom-carpet', 'assets/bed-carpet.png');
-    this.load.image('bedroom-sofa', 'assets/bedroom-sofa.png');
-    this.load.image('bedroom-tv', 'assets/bedroom-tv.png');
-  }
+
+  preload() {}
+
   create() {
-    this.lastKeyDown = "down";
-
-    const bed_object = this.physics.add.staticImage(15, 10, 'bed').setScale(3).refreshBody();
-    const bedroom_table = this.physics.add.staticImage(0, 50, 'bedroom-table').setScale(2).refreshBody();
-    // TO-DO need to remove extra spaces from sprites, so the player freely move 
-    const bedroom_window1 = this.physics.add.staticImage(50, 2, 'bedroom-window').setScale(2).refreshBody();
-    const bedroom_window2 = this.physics.add.staticImage(140, 2, 'bedroom-window').setScale(2).refreshBody();
-    const bedroom_door = this.physics.add.staticImage(155, 85, 'open-door').refreshBody();
-    const bedroom_sofa = this.physics.add.staticImage(100, 30, 'bedroom-sofa').setScale(2).refreshBody();
-    const bedroom_carpet = this.physics.add.staticImage(100, 58, 'bedroom-carpet').setScale(2).refreshBody();
-    const bedroom_tv = this.physics.add.staticImage(100, 85, 'bedroom-tv').setScale(2).refreshBody();
-
-    const bedroom_objects = this.physics.add.staticGroup([bed_object, bedroom_sofa, bedroom_door, bedroom_tv, bedroom_window1, bedroom_window2])
-
     this.camera = this.cameras.main;
-    this.camera.setBackgroundColor(0xff8e80);
+    this.camera.setBackgroundColor(0x252446);
 
-    this.player = this.physics.add.sprite(80 * 6, 45 * 6, "player");
+    this.cursors = this.input.keyboard?.createCursorKeys();
+
+    this.bedroomObjects = this.physics.add.staticGroup([
+      this.physics.add
+        .staticSprite((24 / 2) * 6, (24 / 2) * 6, "bed")
+        .setScale(6)
+        .setName("bed")
+        .setData("description", "my comfy bed")
+        .refreshBody(),
+    ]);
+
+    this.player = this.physics.add
+      .sprite(this.renderer.width / 2, this.renderer.height / 2, "player")
+      .setScale(6);
+
+    // Customize the collider size
+    this.player.body.setSize(11, 15);
+
+    // Customize the collider offset
+    this.player.body.setOffset(2, 1);
+
+    this.interArea = this.physics.add
+      .image(
+        this.renderer.width / 2,
+        this.renderer.height / 2,
+        "interaction-area"
+      )
+      .setScale(6);
+
     this.player.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player, bedroom_objects);
+    this.physics.add.collider(this.player, this.bedroomObjects);
 
-    this.physics.add.overlap(this.player, bedroom_carpet, movingThroughCarpet, null, this);
-    this.physics.add.collider(this.player, bedroom_table, () => console.log('Colliding 2 objects'), null, this);
-
+    this.physics.add.overlap(
+      this.interArea,
+      this.bedroomObjects,
+      (_, bedroomObj: any) => {
+        this.interObject =
+          bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
+      }
+    );
 
     this.stepEvent = this.time.addEvent({
+      delay: 500,
+      repeat: -1,
+      callbackScope: this,
+      callback: () => {
+        if (this.interArea.body.embedded && this.interObject) {
+          this.interObject.setTint(0xfdfaa4, 0xfdfaa4, 0xfdfaa4, 0xfdfaa4);
+          setTimeout(() => {
+            this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
+          }, 250);
+        }
+      },
+    });
+
+    this.blinkInter = this.time.addEvent({
       delay: 220,
       repeat: -1,
       callbackScope: this,
@@ -123,13 +154,9 @@ export class Game extends Scene {
       frames: [{ key: "player", frame: 15 }],
       frameRate: 20,
     });
-
-    EventBus.emit("current-scene-ready", this);
   }
 
   update() {
-    this.cursors = this.input.keyboard?.createCursorKeys();
-
     this.player.body.setVelocity(0);
 
     if (this.cursors?.left.isDown) {
@@ -167,19 +194,33 @@ export class Game extends Scene {
       this.player.anims.play(`idle-${this.lastKeyDown}`, true);
       this.playerMoving = false;
     }
+
+    this.interArea.setX(this.player.x);
+    this.interArea.setY(this.player.y);
+
+    if (this.lastKeyDown === "left") {
+      this.interArea.setX(this.player.x - 64);
+    } else if (this.lastKeyDown === "right") {
+      this.interArea.setX(this.player.x + 64);
+    } else if (this.lastKeyDown === "up") {
+      this.interArea.setY(this.player.y - 64);
+    } else if (this.lastKeyDown === "down") {
+      this.interArea.setY(this.player.y + 64);
+    }
+
+    // Press space to interact with an object
+    if (this.interArea.body.embedded) {
+      if (this.cursors?.space.isDown) {
+        // The object can have data, such as a description
+        // TODO: replace alert with the text boxes
+        alert(this.interObject?.getData("description"));
+      }
+    } else if (this.interObject) {
+      this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
+      this.interObject = null;
+    }
   }
 
-  changeScene() {
-    this.scene.start("GameOver");
-  }
+  changeScene() {}
 }
 
-function movingThroughCarpet(player, carpet) {
-  this.add.text(5, 5, 'Collision shapes, parsed from Tiled', {
-    fontSize: '5px',
-    padding: { x: 20, y: 10 },
-    backgroundColor: '#ffffff',
-    fill: '#000000',
-    wordWrap: { width: 100, height: 100 }
-  });
-}
