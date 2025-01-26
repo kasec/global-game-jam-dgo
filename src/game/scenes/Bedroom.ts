@@ -3,7 +3,7 @@ import { Scene } from "phaser";
 const SPRITES_SCALE = 6;
 const PLAYER_VELOCITY = 70 * SPRITES_SCALE;
 
-export class Game extends Scene {
+export class Bedroom extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bedroomObjects: Phaser.Physics.Arcade.StaticGroup;
@@ -16,7 +16,7 @@ export class Game extends Scene {
   lastKeyDown: string = "down";
 
   constructor() {
-    super("Game");
+    super("Bedroom");
   }
 
   preload() {}
@@ -27,17 +27,49 @@ export class Game extends Scene {
 
     this.cursors = this.input.keyboard?.createCursorKeys();
 
+    this.add
+      .image(this.renderer.width / 2, this.renderer.height / 2, "bedroom")
+      .setScale(6);
+
+    const floor = this.physics.add
+      .staticSprite(this.renderer.width / 2, this.renderer.height - 9, "floor")
+      .setScale(6)
+      .setName("floor")
+      .setData("description", "it's below me")
+      .refreshBody();
+
     this.bedroomObjects = this.physics.add.staticGroup([
       this.physics.add
-        .staticSprite((24 / 2) * 6, (24 / 2) * 6, "bed")
+        .staticSprite(104, 294, "bed")
         .setScale(6)
         .setName("bed")
         .setData("description", "my comfy bed")
         .refreshBody(),
+      this.physics.add
+        .staticSprite(604, 294, "table")
+        .setScale(6)
+        .setName("table")
+        .setData(
+          "description",
+          "my favorite empty mug, and my debt collection, yay!"
+        )
+        .refreshBody(),
+      this.physics.add
+        .staticSprite(404, 194, "art")
+        .setScale(6)
+        .setName("art")
+        .setData("description", "why the color, uhh, it-, nevermind")
+        .refreshBody(),
+      this.physics.add
+        .staticSprite(this.renderer.width - 48, 246, "door")
+        .setScale(6)
+        .setName("door")
+        .setData("description", "let's leave")
+        .refreshBody(),
     ]);
 
     this.player = this.physics.add
-      .sprite(this.renderer.width / 2, this.renderer.height / 2, "player")
+      .sprite(this.renderer.width / 2, this.renderer.height - 66, "player")
       .setScale(6);
 
     // Customize the collider size
@@ -55,7 +87,7 @@ export class Game extends Scene {
       .setScale(6);
 
     this.player.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player, this.bedroomObjects);
+    this.physics.add.collider(this.player, floor);
 
     this.physics.add.overlap(
       this.interArea,
@@ -66,7 +98,7 @@ export class Game extends Scene {
       }
     );
 
-    this.stepEvent = this.time.addEvent({
+    this.blinkInter = this.time.addEvent({
       delay: 500,
       repeat: -1,
       callbackScope: this,
@@ -80,8 +112,8 @@ export class Game extends Scene {
       },
     });
 
-    this.blinkInter = this.time.addEvent({
-      delay: 220,
+    this.stepEvent = this.time.addEvent({
+      delay: 250,
       repeat: -1,
       callbackScope: this,
       callback: () => {
@@ -92,10 +124,10 @@ export class Game extends Scene {
     });
 
     this.anims.create({
-      key: "down",
+      key: "left",
       frames: this.anims.generateFrameNumbers("player", {
-        start: 1,
-        end: 4,
+        start: 16,
+        end: 19,
       }),
       frameRate: 7,
       repeat: -1,
@@ -106,26 +138,6 @@ export class Game extends Scene {
       frames: this.anims.generateFrameNumbers("player", {
         start: 6,
         end: 9,
-      }),
-      frameRate: 7,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "up",
-      frames: this.anims.generateFrameNumbers("player", {
-        start: 11,
-        end: 14,
-      }),
-      frameRate: 7,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "left",
-      frames: this.anims.generateFrameNumbers("player", {
-        start: 16,
-        end: 19,
       }),
       frameRate: 7,
       repeat: -1,
@@ -165,14 +177,6 @@ export class Game extends Scene {
       this.player.body.setVelocityX(PLAYER_VELOCITY);
     }
 
-    if (this.cursors?.up.isDown) {
-      this.player.body.setVelocityY(-PLAYER_VELOCITY);
-    } else if (this.cursors?.down.isDown) {
-      this.player.body.setVelocityY(PLAYER_VELOCITY);
-    }
-
-    this.player.body.velocity.normalize().scale(PLAYER_VELOCITY);
-
     if (this.cursors?.left.isDown) {
       this.lastKeyDown = "left";
       this.player.anims.play("left", true);
@@ -183,12 +187,8 @@ export class Game extends Scene {
       this.playerMoving = true;
     } else if (this.cursors?.up.isDown) {
       this.lastKeyDown = "up";
-      this.player.anims.play("up", true);
-      this.playerMoving = true;
     } else if (this.cursors?.down.isDown) {
       this.lastKeyDown = "down";
-      this.player.anims.play("down", true);
-      this.playerMoving = true;
     } else {
       this.player.anims.stop();
       this.player.anims.play(`idle-${this.lastKeyDown}`, true);
@@ -199,13 +199,11 @@ export class Game extends Scene {
     this.interArea.setY(this.player.y);
 
     if (this.lastKeyDown === "left") {
-      this.interArea.setX(this.player.x - 64);
+      this.interArea.setX(this.player.x - 48);
     } else if (this.lastKeyDown === "right") {
-      this.interArea.setX(this.player.x + 64);
+      this.interArea.setX(this.player.x + 48);
     } else if (this.lastKeyDown === "up") {
-      this.interArea.setY(this.player.y - 64);
-    } else if (this.lastKeyDown === "down") {
-      this.interArea.setY(this.player.y + 64);
+      this.interArea.setY(this.player.y - 48);
     }
 
     // Press space to interact with an object
@@ -214,6 +212,10 @@ export class Game extends Scene {
         // The object can have data, such as a description
         // TODO: replace alert with the text boxes
         alert(this.interObject?.getData("description"));
+
+        if (this.interObject?.name === "door") {
+          this.changeScene();
+        }
       }
     } else if (this.interObject) {
       this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
@@ -221,6 +223,8 @@ export class Game extends Scene {
     }
   }
 
-  changeScene() {}
+  changeScene() {
+    this.scene.start("Corridor");
+  }
 }
 
