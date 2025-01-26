@@ -22,11 +22,25 @@ export class Preloader extends Scene {
     this.load.setPath("assets");
 
     this.load.spritesheet("player", "player.png", {
-      frameWidth: 16 * 6,
-      frameHeight: 16 * 6,
+      frameWidth: 16,
+      frameHeight: 16,
     });
-    this.load.image('open-door', 'open-door.png');
+
+    this.load.image("open-door", "open-door.png");
     this.load.audio("step", "step.wav");
+    this.load.image("bed", "bed.png");
+    this.load.image("bedroom-window", "bedroom-window.png");
+    this.load.image("bedroom-table", "bed-table.png");
+    this.load.image("bedroom-carpet", "bed-carpet.png");
+    this.load.image("bedroom-sofa", "bedroom-sofa.png");
+    this.load.image("bedroom-tv", "bedroom-tv.png");
+    this.load.image("interaction-area", "interaction-area.png");
+    this.load.image("bedroom", "bedroom.png");
+    this.load.image("floor", "floor.png");
+    this.load.image("table", "table.png");
+    this.load.image("art", "art.png");
+    this.load.image("door", "door.png");
+    this.load.image("corridor", "corridor.png");
   }
 
   create() {
@@ -34,7 +48,7 @@ export class Preloader extends Scene {
     //  For example, you can define global animations here, so we can use them in other scenes.
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-    this.scene.start("Game");
+    this.scene.start("Bedroom");
   }
 }
 

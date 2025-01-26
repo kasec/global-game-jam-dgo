@@ -1,5 +1,6 @@
 import { Boot } from "./scenes/Boot";
-import { Game as MainGame } from "./scenes/Game";
+import { Bedroom } from "./scenes/Bedroom";
+import { Corridor } from "./scenes/Corridor";
 import { AUTO, Game } from "phaser";
 import { Preloader } from "./scenes/Preloader";
 
@@ -8,11 +9,11 @@ import { Preloader } from "./scenes/Preloader";
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
   width: 960,
-  height: 540,
+  height: 360,
   physics: {
     default: "arcade",
     arcade: {
-      gravity: { x: 0, y: 0 },
+      debug: true,
     },
   },
   input: {
@@ -22,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
   roundPixels: true,
   parent: "game-container",
   backgroundColor: "#201533",
-  scene: [Boot, Preloader, MainGame],
+  scene: [Boot, Preloader, Bedroom, Corridor],
 };
 
 const StartGame = (parent: string) => {
