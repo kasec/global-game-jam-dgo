@@ -3,53 +3,73 @@ import { Scene } from "phaser";
 const SPRITES_SCALE = 6;
 const PLAYER_VELOCITY = 70 * SPRITES_SCALE;
 
-export class Corridor extends Scene {
-  exit: boolean;
+export class MainScene extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bedroomObjects: Phaser.Physics.Arcade.StaticGroup;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
   stepEvent: Phaser.Time.TimerEvent;
   interObject: Phaser.Types.Physics.Arcade.SpriteWithStaticBody | null;
-  interArea: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
-  blinkInter: Phaser.Time.TimerEvent;
   playerMoving: boolean;
   lastKeyDown: string = "down";
+  back: boolean = false;
+  gameText: Phaser.GameObjects.Text;
 
   constructor() {
-    super("Corridor");
+    super("MainScene");
   }
 
   preload() { }
 
-  init() {
-    this.exit = false;
-  }
-
   create() {
     this.camera = this.cameras.main;
-
     this.camera.setBackgroundColor(0x252446);
 
     this.cursors = this.input.keyboard?.createCursorKeys();
 
-    const bg = this.add.image(0, 0, "corridor").setScale(6).setOrigin(0, 0);
+    this.add
+      .image(this.renderer.width / 2, this.renderer.height / 2, "bedroom")
+      .setScale(6);
+    this.gameText = this.add.text(512, 100, 'Let\'s play', {
+      fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
+      stroke: '#000000', strokeThickness: 8,
+      align: 'center'
+    }).setOrigin(0.5).setDepth(100);
 
-    this.camera.setBounds(0, 0, bg.displayWidth, bg.displayHeight);
+    this.gameText = this.add.text(512, 330, 'Hit space bar!', {
+      fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
+      stroke: '#000000', strokeThickness: 8,
+      backgroundColor: 'grey',
+      align: 'center'
+    }).setOrigin(0.5).setDepth(100);
 
-    const npc = this.physics.add
-      .staticSprite(600, 294, "npc")
+    this.bedroomObjects = this.physics.add.staticGroup([
+      this.physics.add
+        .staticSprite(104, 294, "bed")
+        .setScale(6),
+      this.physics.add
+        .staticSprite(604, 294, "table")
+        .setScale(6),
+      this.physics.add
+        .staticSprite(404, 194, "art")
+        .setScale(6),
+      this.physics.add
+        .staticSprite(this.renderer.width - 48, 246, "door")
+        .setScale(6)
+    ]);
+
+    this.physics.add
+      .staticSprite(400, 300, "npc")
       .setScale(6)
       .setName("pnc")
-      .setData("description", "Hi There! How is it going?")
-      .refreshBody();
 
     this.player = this.physics.add
-      .sprite(66, this.renderer.height - 66, "player")
+      .sprite(
+        !this.back ? this.renderer.width / 2 : this.renderer.width,
+        this.renderer.height - 66,
+        "player"
+      )
       .setScale(6);
-
-
-    this.camera.startFollow(this.player, true);
 
     // Customize the collider size
     this.player.body.setSize(11, 15);
@@ -57,22 +77,7 @@ export class Corridor extends Scene {
     // Customize the collider offset
     this.player.body.setOffset(2, 1);
 
-    this.interArea = this.physics.add
-      .image(
-        this.renderer.width / 2,
-        this.renderer.height / 2,
-        "interaction-area"
-      )
-      .setScale(6);
-
-    this.physics.add.overlap(
-      this.interArea,
-      npc,
-      (_, bedroomObj: unknown) => {
-        this.interObject =
-          bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
-      }
-    );
+    this.player.setCollideWorldBounds(true);
 
     this.stepEvent = this.time.addEvent({
       delay: 250,
@@ -84,7 +89,6 @@ export class Corridor extends Scene {
         }
       },
     });
-
     this.anims.create({
       key: "left",
       frames: this.anims.generateFrameNumbers("player", {
@@ -133,12 +137,10 @@ export class Corridor extends Scene {
   update() {
     this.player.body.setVelocity(0);
 
-    if (!this.exit) {
-      if (this.cursors?.left.isDown) {
-        this.player.body.setVelocityX(-PLAYER_VELOCITY);
-      } else if (this.cursors?.right.isDown) {
-        this.player.body.setVelocityX(PLAYER_VELOCITY);
-      }
+    if (this.cursors?.left.isDown) {
+      this.player.body.setVelocityX(-PLAYER_VELOCITY);
+    } else if (this.cursors?.right.isDown) {
+      this.player.body.setVelocityX(PLAYER_VELOCITY);
     }
 
     if (this.cursors?.left.isDown) {
@@ -159,61 +161,15 @@ export class Corridor extends Scene {
       this.playerMoving = false;
     }
 
-    this.interArea.setX(this.player.x);
-    this.interArea.setY(this.player.y);
-
-    if (this.lastKeyDown === "left") {
-      this.interArea.setX(this.player.x - 48);
-    } else if (this.lastKeyDown === "right") {
-      this.interArea.setX(this.player.x + 48);
-    } else if (this.lastKeyDown === "up") {
-      this.interArea.setY(this.player.y - 48);
-    }
-
     // Press space to interact with an object
-    if (this.interArea.body.embedded) {
-      if (this.cursors?.space.isDown) {
-        // The object can have data, such as a description
-        // TODO: replace alert with the text boxes
-        alert(this.interObject?.getData("description"));
-
-        if (this.interObject?.name === "door") {
-          this.changeScene();
-        }
-      }
-    } else if (this.interObject) {
-      this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
-      this.interObject = null;
-    }
-
-    if (this.player.x + 16 < this.camera.getBounds().x && !this.exit) {
-      this.exit = true;
-      this.cameras.main.fadeOut(250, 0, 0, 0);
-
+    if (this.cursors?.space.isDown) {
+      this.cameras.main.fadeOut(500, 0, 0, 0);
       this.cameras.main.once(
         Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
         () => {
-          this.scene.start("Bedroom", { back: true });
+          this.scene.start("Bedroom");
         }
       );
     }
-
-    if (this.player.x + 16 > this.camera.getBounds().width && !this.exit) {
-
-      this.exit = true;
-      this.cameras.main.fadeOut(250, 0, 0, 0);
-
-      this.cameras.main.once(
-        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-        () => {
-          this.scene.start("MainScene", { back: true });
-        }
-      );
-    }
-  }
-
-  changeScene() {
-    this.scene.start("Corridor");
   }
 }
-

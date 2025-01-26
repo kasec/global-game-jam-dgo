@@ -3,6 +3,7 @@ import { Bedroom } from "./scenes/Bedroom";
 import { Corridor } from "./scenes/Corridor";
 import { AUTO, Game } from "phaser";
 import { Preloader } from "./scenes/Preloader";
+import { MainScene } from "./scenes/MainScene";
 
 //  Find out more information about the Game Config at:
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
@@ -20,7 +21,7 @@ const config: Phaser.Types.Core.GameConfig = {
   roundPixels: true,
   parent: "game-container",
   backgroundColor: "#201533",
-  scene: [Boot, Preloader, Bedroom, Corridor],
+  scene: [Boot, Preloader, MainScene, Bedroom, Corridor],
 };
 
 const StartGame = (parent: string) => {
