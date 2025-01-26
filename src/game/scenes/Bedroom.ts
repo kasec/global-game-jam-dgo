@@ -14,12 +14,17 @@ export class Bedroom extends Scene {
   blinkInter: Phaser.Time.TimerEvent;
   playerMoving: boolean;
   lastKeyDown: string = "down";
+  back: boolean = false;
 
   constructor() {
     super("Bedroom");
   }
 
   preload() {}
+
+  init(data: { back?: boolean }) {
+    this.back = data.back || false;
+  }
 
   create() {
     this.camera = this.cameras.main;
@@ -30,13 +35,6 @@ export class Bedroom extends Scene {
     this.add
       .image(this.renderer.width / 2, this.renderer.height / 2, "bedroom")
       .setScale(6);
-
-    const floor = this.physics.add
-      .staticSprite(this.renderer.width / 2, this.renderer.height - 9, "floor")
-      .setScale(6)
-      .setName("floor")
-      .setData("description", "it's below me")
-      .refreshBody();
 
     this.bedroomObjects = this.physics.add.staticGroup([
       this.physics.add
@@ -69,7 +67,11 @@ export class Bedroom extends Scene {
     ]);
 
     this.player = this.physics.add
-      .sprite(this.renderer.width / 2, this.renderer.height - 66, "player")
+      .sprite(
+        !this.back ? this.renderer.width / 2 : this.renderer.width,
+        this.renderer.height - 66,
+        "player"
+      )
       .setScale(6);
 
     // Customize the collider size
@@ -87,7 +89,6 @@ export class Bedroom extends Scene {
       .setScale(6);
 
     this.player.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player, floor);
 
     this.physics.add.overlap(
       this.interArea,
@@ -214,7 +215,13 @@ export class Bedroom extends Scene {
         alert(this.interObject?.getData("description"));
 
         if (this.interObject?.name === "door") {
-          this.changeScene();
+          this.cameras.main.fadeOut(500, 0, 0, 0);
+          this.cameras.main.once(
+            Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+            () => {
+              this.scene.start("Corridor");
+            }
+          );
         }
       }
     } else if (this.interObject) {
@@ -222,9 +229,4 @@ export class Bedroom extends Scene {
       this.interObject = null;
     }
   }
-
-  changeScene() {
-    this.scene.start("Corridor");
-  }
 }
-
