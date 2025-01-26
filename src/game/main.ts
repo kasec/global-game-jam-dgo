@@ -12,9 +12,6 @@ const config: Phaser.Types.Core.GameConfig = {
   height: 360,
   physics: {
     default: "arcade",
-    arcade: {
-      debug: true,
-    },
   },
   input: {
     keyboard: true,

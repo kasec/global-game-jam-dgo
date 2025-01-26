@@ -4,6 +4,7 @@ const SPRITES_SCALE = 6;
 const PLAYER_VELOCITY = 70 * SPRITES_SCALE;
 
 export class Corridor extends Scene {
+  exit: boolean;
   camera: Phaser.Cameras.Scene2D.Camera;
   player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   bedroomObjects: Phaser.Physics.Arcade.StaticGroup;
@@ -21,22 +22,20 @@ export class Corridor extends Scene {
 
   preload() {}
 
+  init() {
+    this.exit = false;
+  }
+
   create() {
     this.camera = this.cameras.main;
 
     this.camera.setBackgroundColor(0x252446);
-    this.camera.setBounds(0, 0, 960 * 3, 360);
 
     this.cursors = this.input.keyboard?.createCursorKeys();
 
-    this.add.image(960, 180, "corridor").setScale(6);
+    const bg = this.add.image(0, 0, "corridor").setScale(6).setOrigin(0, 0);
 
-    // const floor = this.physics.add
-    //   .staticSprite(this.renderer.width / 2, this.renderer.height - 9, "floor")
-    //   .setScale(6)
-    //   .setName("floor")
-    //   .setData("description", "it's below me")
-    //   .refreshBody();
+    this.camera.setBounds(0, 0, bg.displayWidth, bg.displayHeight);
 
     this.player = this.physics.add
       .sprite(66, this.renderer.height - 66, "player")
@@ -57,9 +56,6 @@ export class Corridor extends Scene {
         "interaction-area"
       )
       .setScale(6);
-
-    this.player.setCollideWorldBounds(true);
-    // this.physics.add.collider(this.player, floor);
 
     this.stepEvent = this.time.addEvent({
       delay: 250,
@@ -120,10 +116,12 @@ export class Corridor extends Scene {
   update() {
     this.player.body.setVelocity(0);
 
-    if (this.cursors?.left.isDown) {
-      this.player.body.setVelocityX(-PLAYER_VELOCITY);
-    } else if (this.cursors?.right.isDown) {
-      this.player.body.setVelocityX(PLAYER_VELOCITY);
+    if (!this.exit) {
+      if (this.cursors?.left.isDown) {
+        this.player.body.setVelocityX(-PLAYER_VELOCITY);
+      } else if (this.cursors?.right.isDown) {
+        this.player.body.setVelocityX(PLAYER_VELOCITY);
+      }
     }
 
     if (this.cursors?.left.isDown) {
@@ -169,6 +167,18 @@ export class Corridor extends Scene {
     } else if (this.interObject) {
       this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
       this.interObject = null;
+    }
+
+    if (this.player.x + 16 < this.camera.getBounds().x && !this.exit) {
+      this.exit = true;
+      this.cameras.main.fadeOut(250, 0, 0, 0);
+
+      this.cameras.main.once(
+        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+        () => {
+          this.scene.start("Bedroom", { back: true });
+        }
+      );
     }
   }
 
