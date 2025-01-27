@@ -1,10 +1,10 @@
 import { Scene } from "phaser";
 
-export class MainScene extends Scene {
+export class Thanks extends Scene {
   cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
   constructor() {
-    super("MainScene");
+    super("Thanks");
   }
 
   preload() {}
@@ -23,7 +23,7 @@ export class MainScene extends Scene {
       .setScale(6);
 
     this.add
-      .text(512, 70, "Let's play", {
+      .text(512, 70, "Thanks for playing!", {
         fontFamily: "KiwiSoda",
         fontSize: 48,
         color: "#fcf660",
@@ -35,7 +35,7 @@ export class MainScene extends Scene {
       .setDepth(100);
 
     this.add
-      .text(512, 340, "Hit space bar to start!", {
+      .text(512, 340, "Hit space bar to start again!", {
         fontFamily: "KiwiSoda",
         fontSize: 38,
         color: "#fcf660",

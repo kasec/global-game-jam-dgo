@@ -20,7 +20,7 @@ export class Bedroom extends Scene {
     super("Bedroom");
   }
 
-  preload() { }
+  preload() {}
 
   init(data: { back?: boolean }) {
     this.back = data.back || false;
@@ -49,7 +49,7 @@ export class Bedroom extends Scene {
         .setName("table")
         .setData(
           "description",
-          "my favorite empty mug, and my debt collection, yay!"
+          "my favorite empty mug, and my debt collection, yay"
         )
         .refreshBody(),
       this.physics.add
@@ -68,7 +68,7 @@ export class Bedroom extends Scene {
 
     this.player = this.physics.add
       .sprite(
-        !this.back ? this.renderer.width / 2 : this.renderer.width,
+        !this.back ? 66 : this.renderer.width,
         this.renderer.height - 66,
         "player"
       )
@@ -230,3 +230,4 @@ export class Bedroom extends Scene {
     }
   }
 }
+

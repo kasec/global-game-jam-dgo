@@ -21,3 +21,16 @@ body {
   margin: auto;
 }
 
+@font-face {
+  font-family: "KiwiSoda";
+  src: url("assets/fonts/KiwiSoda.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.fontload {
+  visibility: hidden;
+  position: absolute;
+  left: -9999px;
+}
+

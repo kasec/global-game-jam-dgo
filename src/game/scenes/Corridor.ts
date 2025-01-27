@@ -20,7 +20,7 @@ export class Corridor extends Scene {
     super("Corridor");
   }
 
-  preload() { }
+  preload() {}
 
   init() {
     this.exit = false;
@@ -38,16 +38,18 @@ export class Corridor extends Scene {
     this.camera.setBounds(0, 0, bg.displayWidth, bg.displayHeight);
 
     const npc = this.physics.add
-      .staticSprite(600, 294, "npc")
+      .staticSprite(1300, 294, "npc")
       .setScale(6)
       .setName("pnc")
-      .setData("description", "Hi There! How is it going?")
+      .setData(
+        "description",
+        "hi there! gow is it going? $ leaving late today, right?$ yeah me too, i'm waiting for my taxi$anyway, i think today it's a nice game to play a lot of games$don't you think?"
+      )
       .refreshBody();
 
     this.player = this.physics.add
       .sprite(66, this.renderer.height - 66, "player")
       .setScale(6);
-
 
     this.camera.startFollow(this.player, true);
 
@@ -65,14 +67,24 @@ export class Corridor extends Scene {
       )
       .setScale(6);
 
-    this.physics.add.overlap(
-      this.interArea,
-      npc,
-      (_, bedroomObj: unknown) => {
-        this.interObject =
-          bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
-      }
-    );
+    this.blinkInter = this.time.addEvent({
+      delay: 500,
+      repeat: -1,
+      callbackScope: this,
+      callback: () => {
+        if (this.interArea.body.embedded && this.interObject) {
+          this.interObject.setTint(0xfdfaa4, 0xfdfaa4, 0xfdfaa4, 0xfdfaa4);
+          setTimeout(() => {
+            this.interObject?.setTint(0xffffff, 0xffffff, 0xffffff, 0xffffff);
+          }, 250);
+        }
+      },
+    });
+
+    this.physics.add.overlap(this.interArea, npc, (_, bedroomObj: unknown) => {
+      this.interObject =
+        bedroomObj as Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
+    });
 
     this.stepEvent = this.time.addEvent({
       delay: 250,
@@ -175,7 +187,9 @@ export class Corridor extends Scene {
       if (this.cursors?.space.isDown) {
         // The object can have data, such as a description
         // TODO: replace alert with the text boxes
-        alert(this.interObject?.getData("description"));
+        const text: string = this.interObject?.getData("description") || "";
+
+        text.split("$").forEach((txt: string) => alert(txt));
 
         if (this.interObject?.name === "door") {
           this.changeScene();
@@ -199,14 +213,13 @@ export class Corridor extends Scene {
     }
 
     if (this.player.x + 16 > this.camera.getBounds().width && !this.exit) {
-
       this.exit = true;
       this.cameras.main.fadeOut(250, 0, 0, 0);
 
       this.cameras.main.once(
         Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
         () => {
-          this.scene.start("MainScene", { back: true });
+          this.scene.start("Thanks");
         }
       );
     }
